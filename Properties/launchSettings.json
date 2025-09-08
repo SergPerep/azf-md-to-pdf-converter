@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "azf_md_to_pdf_converter": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7216",
+      "launchBrowser": false
+    }
+  }
+}
