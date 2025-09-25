@@ -40,10 +40,22 @@ jobs:
         shell: pwsh
         run: |
           Invoke-WebRequest -Uri "https://storage.googleapis.com/chrome-for-testing-public/132.0.6834.83/win64/chrome-win64.zip" -OutFile "chrome.zip"
-          Expand-Archive -Path "chrome.zip" -DestinationPath "."
-          Move-Item -Path "chrome-win64" -Destination "wwwroot/chrome-win64"
+          
+          New-Item -ItemType Directory -Force -Path "chrome-extracted"
+          
+          Expand-Archive -Path "chrome.zip" -DestinationPath "chrome-extracted"
+          
+          New-Item -ItemType Directory -Force -Path "wwwroot"
+
+          Move-Item -Path "chrome-extracted/*" -Destination "wwwroot/chrome-win64" -Force
+
           Remove-Item chrome.zip
-      
+          Remove-Item -Recurse -Force chrome-extracted
+          
+      - name: List extracted files
+        run: Get-ChildItem -Recurse
+        shell: pwsh
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
