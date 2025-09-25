@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Markdown2Pdf;
+using Markdown2Pdf.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -45,7 +46,9 @@ public class Md2PdfConvertor
         // 2. Convert
         var mdFilePath = Directory.GetFiles(localInputPath)
             .First(filePath => Path.GetExtension(filePath) == ".md");
-        var converter = new Markdown2PdfConverter();
+        var options = new Markdown2PdfOptions();
+        // options.ChromePath = 
+        var converter = new Markdown2PdfConverter(options);
         await converter.Convert(mdFilePath, Path.Combine(localOutputPath, "readme.pdf"));
 
         // 3. Upload file to blob storages
