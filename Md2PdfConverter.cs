@@ -48,7 +48,8 @@ public class Md2PdfConvertor
             .First(filePath => Path.GetExtension(filePath) == ".md");
         var options = new Markdown2PdfOptions();
         if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"))) {
-            options.ChromePath = Path.Combine(Environment.CurrentDirectory, "chrome-win64", "chrome.exe");
+            var root = Environment.GetEnvironmentVariable("HOME"); 
+            options.ChromePath = Path.Combine(root!, "site", "wwwroot", "chrome-win64", "chrome.exe");
         }
         var converter = new Markdown2PdfConverter(options);
         await converter.Convert(mdFilePath, Path.Combine(localOutputPath, "readme.pdf"));
