@@ -36,6 +36,12 @@ jobs:
           dotnet build --configuration Release --output ./output
           popd
       
+      - name: Install Chromium manually
+        run: |
+          Invoke-WebRequest -Uri "https://storage.googleapis.com/chrome-for-testing-public/132.0.6834.83/win64/chrome-win64.zip" -OutFile "chrome.zip"
+          Expand-Archive -Path chrome.zip -DestinationPath chrome
+          Move-Item chrome\chrome-win64 wwwroot\chrome-win64
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
