@@ -45,9 +45,9 @@ jobs:
           
           Expand-Archive -Path "chrome.zip" -DestinationPath "chrome-extracted"
           
-          New-Item -ItemType Directory -Force -Path "wwwroot"
+          New-Item -ItemType Directory -Force -Path "./output/chrome-win64"
 
-          Move-Item -Path "chrome-extracted/*" -Destination "wwwroot/chrome-win64" -Force
+          Copy-Item -Path "chrome-extracted/*" -Destination "./output/chrome-win64" -Recurse -Force
 
           Remove-Item chrome.zip
           Remove-Item -Recurse -Force chrome-extracted
