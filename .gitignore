@@ -6,6 +6,9 @@ __queuestorage__/
 __azurite_db*
 .vscode/
 
+# Converter container
+ChromeHeadlessShell/
+.env
 
 # Azure Functions localsettings file
 local.settings.json
