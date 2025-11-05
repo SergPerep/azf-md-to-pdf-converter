@@ -26,7 +26,8 @@ var outputFileName = GetEnvironmentalVariable("MD2PDF_BLOB_OUTPUT_FILE_NAME", mi
 if (missingEnvVariables.Any())
 {
     throw new Exception("Missing env variables: " + string.Join(", ", missingEnvVariables));
-};
+}
+;
 
 // 2. Authenticate
 var uri = new Uri(blobStorageUrl!);
@@ -39,9 +40,16 @@ var virtualFolder = blobStorageInputFolderName + "/";
 
 foreach (var blobItem in containerClient.GetBlobs(prefix: virtualFolder))
 {
-    string blobName = blobItem.Name;
-    string relativePath = blobName.Substring(virtualFolder.Length);
-    string localFilePath = Path.Combine(localInputPath, relativePath);
+    var blobName = blobItem.Name;
+    var relativePath = blobName.Substring(virtualFolder.Length);
+    var localFilePath = Path.Combine(localInputPath, relativePath);
+
+    var localFolderPath = Path.GetDirectoryName(localFilePath);
+    if (!string.IsNullOrWhiteSpace(localFolderPath) && !Directory.Exists(localFolderPath))
+    {
+        Directory.CreateDirectory(localFolderPath);
+    }
+
     var blobClient = containerClient.GetBlobClient(blobName);
     Console.WriteLine($"Download {blobName} to {localFilePath}");
     blobClient.DownloadTo(localFilePath);
