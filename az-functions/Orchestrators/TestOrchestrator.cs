@@ -6,6 +6,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using Shared.Models;
 
 namespace Md2PDFConverter.Orchestrators;
 
@@ -34,10 +35,11 @@ public static class TestOrchestrator
 
         var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
 
-        var (IsTimedOut, result) = await WaitForEventWithTimeOut<string>(
+        logger.LogInformation("Waiting for event...");
+        var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
             context: context,
             timeOutIn: TimeSpan.FromMinutes(10),
-            eventName: "ConverterResult_" + converterResponse.ContainerInstanceId
+            eventName: "ConverterResult"
         );
 
         if (IsTimedOut)
@@ -45,8 +47,12 @@ public static class TestOrchestrator
             throw new Exception("The await of container event is timed out");
         }
 
-        return $"Result: {result}";
+        if (converterEventData?.Status != ConverterEventDataStatus.Completed)
+        {
+            throw new Exception("The converter container failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
+        }
 
+        return "PDF is created!";
     }
 
     [Function("TestOrchestrator_HttpStart")]
@@ -73,18 +79,18 @@ public static class TestOrchestrator
     TimeSpan timeOutIn,
     string eventName
     )
-{
-    var cancellationTokenResource = new CancellationTokenSource();
-    var timeoutAt = context.CurrentUtcDateTime + timeOutIn;
-    var timeOutTask = context.CreateTimer(timeoutAt, cancellationTokenResource.Token);
-    var eventTask = context.WaitForExternalEvent<T>(eventName);
-    var winner = await Task.WhenAny(eventTask, timeOutTask);
-
-    if (winner == eventTask)
     {
-        cancellationTokenResource.Cancel();
-        return (false, await eventTask);
+        var cancellationTokenResource = new CancellationTokenSource();
+        var timeoutAt = context.CurrentUtcDateTime + timeOutIn;
+        var timeOutTask = context.CreateTimer(timeoutAt, cancellationTokenResource.Token);
+        var eventTask = context.WaitForExternalEvent<T>(eventName);
+        var winner = await Task.WhenAny(eventTask, timeOutTask);
+
+        if (winner == eventTask)
+        {
+            cancellationTokenResource.Cancel();
+            return (false, await eventTask);
+        }
+        return (true, default(T));
     }
-    return (true, default(T));
-}
 }

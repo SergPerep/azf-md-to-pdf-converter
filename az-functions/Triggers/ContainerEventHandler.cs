@@ -2,6 +2,7 @@ using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using Shared.Models;
 
 namespace MdsToPDFConverter.Triggers;
 
@@ -17,16 +18,9 @@ public class ContainerEventHandler
     [Function(nameof(ContainerEventHandler))]
     public async Task Run([EventGridTrigger] EventGridEvent gridEvent, [DurableClient] DurableTaskClient client)
     {
-        var instanceId = gridEvent.Subject;
+        _logger.LogInformation("Recieved an event!");
         var converterEventData = gridEvent.Data.ToObjectFromJson<ConverterEventData>();
-
-        await client.RaiseEventAsync(instanceId, "ConverterResult_" + converterEventData?.ContainerId, converterEventData);
-        // _logger.LogInformation("Event type: {type}, Event subject: {subject}", cloudEvent.Type, cloudEvent.Subject);
+        var orchInstanceId = converterEventData?.OrchInstanceId;
+        await client.RaiseEventAsync(orchInstanceId, "ConverterResult", converterEventData);
     }
-}
-
-class ConverterEventData
-{
-    public string Status { get; set; }
-    public string ContainerId { get; set; }
 }

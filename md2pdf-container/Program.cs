@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using Markdown2Pdf;
 using Markdown2Pdf.Options;
 using Microsoft.Extensions.Configuration;
+using Shared.Models;
 
 // 1. Get env variables
 var config = new ConfigurationBuilder()
@@ -19,6 +20,7 @@ EventGridPublisherClient? publisherClient = null;
 
 List<string> missingEnvVariables = [];
 var containerId = GetEnvironmentalVariable("CONTAINER_ID", missingEnvVariables);
+var orchInstanceId = GetEnvironmentalVariable("ORCH_INSTANCE_ID", missingEnvVariables);
 var blobStorageUrl = GetEnvironmentalVariable("BLOB_STORAGE_URL", missingEnvVariables);
 var blobStorageContainerName = GetEnvironmentalVariable("BLOB_STORAGE_CONTAINER_NAME", missingEnvVariables);
 var blobStorageInputFolderName = GetEnvironmentalVariable("BLOB_INPUT_FOLDER_NAME", missingEnvVariables);
@@ -85,8 +87,9 @@ try
         dataVersion: "1.0",
         data: new ConverterEventData
         {
-            Status = "Completed",
-            ContainerId = containerId
+            Status = ConverterEventDataStatus.Completed,
+            OrchInstanceId = orchInstanceId,
+            ErrorMessage = ""
         }
     );
 
@@ -98,9 +101,10 @@ catch (Exception ex)
         subject: $"container/{containerId}/result",
         eventType: "Container.JobFailed",
         dataVersion: "1.0",
-        data: new
+        data: new ConverterEventData
         {
-            Status = "Failed",
+            Status = ConverterEventDataStatus.Completed,
+            OrchInstanceId = orchInstanceId,
             ErrorMessage = ex.ToString()
         }
     );
@@ -114,10 +118,4 @@ string? GetEnvironmentalVariable(string envName, List<string> missingEnvVariable
     var envVal = config[envName];
     if (string.IsNullOrWhiteSpace(envVal)) missingEnvVariables.Add(envName);
     return envVal;
-}
-
-class ConverterEventData
-{
-    public string Status { get; set; }
-    public string ContainerId { get; set; }
 }
