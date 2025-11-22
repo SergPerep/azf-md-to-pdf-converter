@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "flow", "flow.csproj", "{056C4BAC-181A-1167-E0A6-DFA26664CBDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{056C4BAC-181A-1167-E0A6-DFA26664CBDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{056C4BAC-181A-1167-E0A6-DFA26664CBDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{056C4BAC-181A-1167-E0A6-DFA26664CBDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{056C4BAC-181A-1167-E0A6-DFA26664CBDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {31CA13F5-1242-4147-A46C-5EC355264DE4}
+	EndGlobalSection
+EndGlobal

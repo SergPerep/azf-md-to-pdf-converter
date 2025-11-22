@@ -1,15 +1,15 @@
+using System.Net;
 using Azure.Core;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Azure.ResourceManager.ContainerInstance;
 using Azure.ResourceManager.ContainerInstance.Models;
 using Azure.ResourceManager.Resources;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-namespace MDsToPDFConverter.Function;
+namespace MdsToPDFConverter.Triggers;
 
 public class HttpTriggerContainer
 {
@@ -21,7 +21,7 @@ public class HttpTriggerContainer
     }
 
     [Function("HttpTriggerContainer")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req)
     {
         var credential = new DefaultAzureCredential();
         // Set Azure Resourse Management Client
@@ -42,10 +42,8 @@ public class HttpTriggerContainer
 
         var container = new ContainerInstanceContainer(containerGroupName, containerImage, resourceRequirements);
         var envVariableNames = new string[] {
-            "MD2PDF_TENANT_ID",
-            "MD2PDF_CLIENT_ID",
-            "MD2PDF_CLIENT_SECRET",
-            "MD2PDF_BLOB_STORAGE_URL",
+            "BLOB_STORAGE_URL",
+            "BLOB_STORAGE_CONTAINER_NAME",
             "MD2PDF_BLOB_INPUT_FOLDER_NAME",
             "MD2PDF_BLOB_OUTPUT_FOLDER_NAME",
             "MD2PDF_BLOB_OUTPUT_FILE_NAME"
@@ -67,6 +65,8 @@ public class HttpTriggerContainer
         var result = containerGroupLro.Value;
         _logger.LogInformation($"Container started: {result.Id}");
 
-        return new OkObjectResult($"Started container: {result.Data.Name}");
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        await response.WriteStringAsync($"Started container: {result.Data.Name}");
+        return response;
     }
 }

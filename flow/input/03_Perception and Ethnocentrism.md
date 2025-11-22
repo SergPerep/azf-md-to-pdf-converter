@@ -1,0 +1,5 @@
+# Perception and Ethnocentrism
+
+Paganism came to be equated by Christians with a sense of hedonism, representing those who are sensual, materialistic, self-indulgent, unconcerned with the future, and uninterested in more mainstream religions. Pagans were usually described in terms of this worldly stereotype, especially among those drawing attention to what they perceived as the limitations of paganism.
+
+Recently, the ethnocentric and moral absolutist origins of the common usage of the term pagan have been proposed, with scholar David Petts noting how, with particular reference to Christianity, "...local religions are defined in opposition to privileged 'world religions'; they become everything that world religions are not, rather than being explored as a subject in their own right." In addition, Petts notes how various spiritual, religious, and metaphysical ideas branded as "pagan" from diverse cultures were studied in opposition to Abrahamism in early anthropology, a binary he links to ethnocentrism and colonialism.
