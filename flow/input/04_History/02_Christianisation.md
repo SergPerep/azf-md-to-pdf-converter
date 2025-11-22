@@ -1,7 +1,0 @@
-# Christianisation
-
-## In Albania
-
-Paganism in Albania serves as an example of how indigenous folk religious practices persisted under official policies of Christian conversion. Proto-Albanian speakers were Christianized under the Latin sphere of influence, specifically in the 4th century CE, as shown by the basic Christian terms in Albanian, which are of Latin origin and entered Proto-Albanian before the Gheg–Tosk dialectal diversification. Regardless of Christianization, paganism persisted among Albanians, and especially within the inaccessible and deep interior where Albanian folklore evolved over the centuries in a relatively isolated tribal culture and society. It has continued to persist, despite partially transformation by Christian, and later Muslim and Marxist beliefs, that were either to be introduced by choice or imposed by force. The Albanian traditional customary law (Kanun) has held a longstanding, unwavering, and sacred – although secular – unchallenged authority with a cross-religious effectiveness over the Albanians, which is attributed to an earlier pagan code common to all the Albanian tribes. Historically, the Christian clergy has vigorously fought, but without success, to eliminate the pagan rituals practiced by Albanians for traditional feasts and particular events, especially the fire rituals (Zjarri).
-
-![Gjama](./img/Gjama.jpg)
