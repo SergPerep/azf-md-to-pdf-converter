@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "AzureFunctions/**"
   workflow_dispatch:
 
 env:
@@ -32,6 +34,7 @@ jobs:
       - name: 'Resolve Project Dependencies Using Dotnet'
         shell: pwsh
         run: |
+          cd ./AzureFunctions
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           dotnet build --configuration Release --output ./output
           popd
