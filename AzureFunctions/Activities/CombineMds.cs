@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Md2PDFConverter.Models;
 using Md2PDFConverter.Services;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 
 namespace Md2PDFConverter.Activities;
 
@@ -12,6 +13,7 @@ public class CombineMds(IStorageService storageService)
     [Function(nameof(CombineMds))]
     public async Task<CombineMdsResponse> Run([ActivityTrigger] CombineMdsRequest request, FunctionContext context)
     {
+        var logger = context.GetLogger(nameof(CombineMds));
         await storageService.DeleteBlobIfExistsAsync(request.DestFilePath);
         var finalContent = await storageService.ReadMdAsTextAsync(request.Mds[0].Path);
         var builder = new StringBuilder(finalContent);
@@ -27,6 +29,7 @@ public class CombineMds(IStorageService storageService)
             for (int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
+                logger.LogTrace($"Line {i}: {line}");
                 if (!headerRegex.IsMatch(line)) continue;
                 var headerLevel = line.Count(ch => ch == '#');
                 var headerText = line.Replace("#", "").Trim();
@@ -34,7 +37,7 @@ public class CombineMds(IStorageService storageService)
                 var targetHeaderLevel = headerLevel + downgradeLevel;
                 targetHeaderLevel = targetHeaderLevel > 6 ? 6 : targetHeaderLevel;
                 var updatedLine = $"{new string('#', targetHeaderLevel)} {headerText}";
-                Console.WriteLine($"Downgrade header lvl. {downgradeLevel}: \"{line}\" -> \"{updatedLine}\"");
+                logger.LogInformation($"Downgrade header lvl. {downgradeLevel}: \"{line}\" -> \"{updatedLine}\"");
                 lines[i] = $"{new string('#', targetHeaderLevel)} {headerText}";
             }
 
