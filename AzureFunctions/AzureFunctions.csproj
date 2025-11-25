@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>azf_md_to_pdf_converter</RootNamespace>
+    <RootNamespace>AzureFunctions</RootNamespace>
     <UserSecretsId>e00c44e2-270c-47a1-a0f5-92c21a85f881</UserSecretsId>
   </PropertyGroup>
 

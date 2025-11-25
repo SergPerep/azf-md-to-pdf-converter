@@ -33,18 +33,18 @@ public static class TestOrchestrator
             OutputFolderPath = "output"
         };
 
-        var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
+        //var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
 
         logger.LogInformation("Waiting for event...");
         var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
             context: context,
-            timeOutIn: TimeSpan.FromMinutes(10),
+            timeOutIn: TimeSpan.FromMinutes(1),
             eventName: "ConverterResult"
         );
 
         if (IsTimedOut)
         {
-            throw new Exception("The await of container event is timed out");
+            throw new Exception("The waiting for container event has timed out");
         }
 
         if (converterEventData?.Status != ConverterEventDataStatus.Completed)
