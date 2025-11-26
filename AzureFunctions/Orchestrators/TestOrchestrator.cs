@@ -33,7 +33,7 @@ public static class TestOrchestrator
             OutputFolderPath = "output"
         };
 
-        //var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
+        await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
 
         logger.LogInformation("Waiting for event...");
         var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
