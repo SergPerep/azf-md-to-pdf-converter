@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>md2pdf_container</RootNamespace>
+    <RootNamespace>ConverterContainer</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>d9064a97-02f3-4a6e-b76a-d23493794410</UserSecretsId>

@@ -1,7 +1,9 @@
 # Build image
 
+Run from the root folder, otherwise the "Shared" folder will not be copied.
+
 ```bash
-docker build -t md2pdf-container:latest .
+docker build -f ConverterContainer/DockerFile -t md2pdf-container:latest .
 ```
 
 # Run container

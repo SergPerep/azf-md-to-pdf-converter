@@ -6,10 +6,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS release
 
 WORKDIR /converter
 
-COPY md2pdf-container.csproj md2pdf-container.sln Program.cs ./
-# COPY ./ChromeHeadlessShell ./ChromeHeadlessShellss
+COPY ./Shared ./Shared
 
-RUN dotnet publish
+COPY ./ConverterContainer/ConverterContainer.csproj ./ConverterContainer/Program.cs ./ConverterContainer/
+
+RUN dotnet publish ./ConverterContainer/ConverterContainer.csproj
 
 # =======================================
 # STAGE #2: Download Chrome Headless Shell
@@ -29,7 +30,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS prod
 
 WORKDIR /converter
 
-COPY --from=release ./converter/bin/Release/net8.0/publish/ ./
+COPY --from=release ./converter/ConverterContainer/bin/Release/net8.0/publish/ ./
 COPY --from=chrome ./chrome/chrome-headless-shell/linux*/chrome-headless-shell-linux* ./ChromeHeadlessShell
 
 RUN apt-get update \
