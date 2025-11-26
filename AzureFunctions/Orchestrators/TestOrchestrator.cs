@@ -39,7 +39,7 @@ public static class TestOrchestrator
         logger.LogInformation("Waiting for event...");
         var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
             context: context,
-            timeOutIn: TimeSpan.FromMinutes(1),
+            timeOutIn: TimeSpan.FromMinutes(15),
             eventName: "ConverterResult"
         );
 
