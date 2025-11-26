@@ -42,4 +42,4 @@ RUN apt-get update \
       --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT [ "dotnet", "md2pdf-container.dll" ]
+ENTRYPOINT [ "dotnet", "ConverterContainer.dll" ]

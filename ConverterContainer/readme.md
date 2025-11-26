@@ -11,7 +11,7 @@ docker build -f ConverterContainer/DockerFile -t md2pdf-container:latest .
 Create `.env` and put env variables there: 
 
 ```bash 
-docker run --env-file .env md2pdf-container:latest
+docker run --env-file ./ConverterContainer/.env md2pdf-container:latest
 ```
 
 # Publish container to Azure Container Registry
