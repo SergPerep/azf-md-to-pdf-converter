@@ -5,4 +5,5 @@ public class ConverterRequest
     public string InputFolderPath { get; set; }
     public string OutputFolderPath { get; set; }
     public string OutputFileName { get; set; }
+    public string ContainerInstanceId { get; set; }
 }

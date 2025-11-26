@@ -30,7 +30,8 @@ public static class TestOrchestrator
         {
             InputFolderPath = Path.GetDirectoryName(combineMdsResponse.MdFilePath),
             OutputFileName = "readme.pdf",
-            OutputFolderPath = "output"
+            OutputFolderPath = "output",
+            ContainerInstanceId = context.InstanceId
         };
 
         await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);

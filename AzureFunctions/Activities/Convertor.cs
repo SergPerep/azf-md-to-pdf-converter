@@ -51,6 +51,7 @@ public class Convertor
         container.EnvironmentVariables.Add(new ContainerEnvironmentVariable("BLOB_INPUT_FOLDER_NAME") { Value = request.InputFolderPath });
         container.EnvironmentVariables.Add(new ContainerEnvironmentVariable("BLOB_OUTPUT_FOLDER_NAME") { Value = request.OutputFolderPath });
         container.EnvironmentVariables.Add(new ContainerEnvironmentVariable("BLOB_OUTPUT_FILE_NAME") { Value = request.OutputFileName });
+        container.EnvironmentVariables.Add(new ContainerEnvironmentVariable("ORCH_INSTANCE_ID") { Value = request.ContainerInstanceId });
 
         var uaManagedIdentity = new ManagedServiceIdentity(ManagedServiceIdentityType.UserAssigned)
         {
