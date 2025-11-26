@@ -23,7 +23,7 @@ public class CombineMds(IStorageService storageService)
         {
             // Console.WriteLine($"Import {md.Path}");
             var content = await storageService.ReadMdAsTextAsync(md.Path);
-            var lines = content.Split(Environment.NewLine);
+            var lines = content.Split(["\r\n", "\n"], StringSplitOptions.None);
 
             // Downgrade headers
             for (int i = 0; i < lines.Length; i++)
