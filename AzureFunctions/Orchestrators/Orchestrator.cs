@@ -10,13 +10,13 @@ using Shared.Models;
 
 namespace Md2PDFConverter.Orchestrators;
 
-public static class TestOrchestrator
+public static class Orchestrator
 {
-    [Function(nameof(TestOrchestrator))]
+    [Function(nameof(Orchestrator))]
     public static async Task<string> RunOrchestrator(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        ILogger logger = context.CreateReplaySafeLogger(nameof(TestOrchestrator));
+        ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
 
         // Replace name and input with values relevant for your Durable Functions Activity
         var scanFilesResponse = await context.CallActivityAsync<ScanFilesResponse>(nameof(ScanFiles), new ScanFilesRequest { FolderPath = "input" });
@@ -56,7 +56,7 @@ public static class TestOrchestrator
         return "PDF has been created!";
     }
 
-    [Function("TestOrchestrator_HttpStart")]
+    [Function("Orchestrator_HttpStart")]
     public static async Task<HttpResponseData> HttpStart(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
         [DurableClient] DurableTaskClient client,
@@ -66,7 +66,7 @@ public static class TestOrchestrator
 
         // Function input comes from the request content.
         string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
-            nameof(TestOrchestrator));
+            nameof(Orchestrator));
 
         logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
