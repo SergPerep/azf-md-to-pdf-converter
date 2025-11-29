@@ -103,7 +103,7 @@ catch (Exception ex)
         dataVersion: "1.0",
         data: new ConverterEventData
         {
-            Status = ConverterEventDataStatus.Completed,
+            Status = ConverterEventDataStatus.Failed,
             OrchInstanceId = orchInstanceId,
             ErrorMessage = ex.ToString()
         }
