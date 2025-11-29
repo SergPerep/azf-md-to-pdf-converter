@@ -53,6 +53,7 @@ public static class Orchestrator
             throw new InvalidOperationException("The converter container failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
         }
 
+        logger.LogInformation("PDF has been created!");
         return "PDF has been created!";
     }
 
