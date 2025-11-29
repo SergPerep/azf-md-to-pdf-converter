@@ -18,9 +18,10 @@ public class ContainerEventHandler
     [Function(nameof(ContainerEventHandler))]
     public async Task Run([EventGridTrigger] EventGridEvent gridEvent, [DurableClient] DurableTaskClient client)
     {
-        _logger.LogInformation("Recieved an event!");
         var converterEventData = gridEvent.Data.ToObjectFromJson<ConverterEventData>();
         var orchInstanceId = converterEventData?.OrchInstanceId;
+
+        _logger.LogInformation("Recieved an event: " + gridEvent.Data.ToString());
         await client.RaiseEventAsync(orchInstanceId, "ConverterResult", converterEventData);
     }
 }
