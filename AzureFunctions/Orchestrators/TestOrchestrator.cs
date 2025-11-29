@@ -45,15 +45,15 @@ public static class TestOrchestrator
 
         if (IsTimedOut)
         {
-            throw new Exception("The waiting for container event has timed out");
+            throw new TimeoutException("The waiting for container event has timed out");
         }
 
         if (converterEventData?.Status != ConverterEventDataStatus.Completed)
         {
-            throw new Exception("The converter container failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
+            throw new InvalidOperationException("The converter container failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
         }
 
-        return "PDF is created!";
+        return "PDF has been created!";
     }
 
     [Function("TestOrchestrator_HttpStart")]
