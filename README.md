@@ -67,5 +67,6 @@ Headers will be amended based on the folder structure and `.md` file name. For e
 
 This applies not only for h1 but for every header level.
 
+- [ ] Demonstrate in which order the files will be merged
 - [ ] Add Env variables  
 - [ ] Add Image registry to diagram
