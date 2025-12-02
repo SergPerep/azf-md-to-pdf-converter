@@ -2,7 +2,7 @@
 
 Converts a collection of markdown files into a single PDF, preserving links, images and mermaid diagrams. Deployed to Microsoft Azure.
 
-The project is built on top of the [Markdown2Pdf library](https://github.com/Flayms/Markdown2Pdf), but the library itself can handle only one-to-one conversion. This implementation though receives multiple markdown files, validates them, compiles them into a single markdown file and then puts it though converter. 
+The project is built on top of the [Markdown2Pdf library](https://github.com/Flayms/Markdown2Pdf), but the library itself can handle only one-to-one conversion. This implementation through receives multiple markdown files, validates them, compiles them into a single markdown file and then puts it though converter. 
 
 ## Flow
 
@@ -63,3 +63,7 @@ Example of the correct folder structure:
 03_Perception and Ethnocentrism.md
 index.md
 ```
+
+- [ ] Add input example
+- [ ] Add Env variables  
+- [ ] Add Image registry to diagram
