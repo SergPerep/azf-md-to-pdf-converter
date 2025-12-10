@@ -49,6 +49,7 @@ Input/
 `- index.md
 ```
 
+
 Rules to follow:
 1. Each folder including the root must contain `index.md`
 1. Each `.md` file must contain a single h1 header (no more no less)
