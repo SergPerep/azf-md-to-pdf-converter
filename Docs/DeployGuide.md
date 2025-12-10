@@ -2,7 +2,23 @@
 
 ## Create / Deploy resources
 
+### Function App
+
+### Managed Identity for Container Instance
+
+### Blob Storage
+
+### EventGrid Topic
+
+- Log Analytics Workspace
+- Applicatio Insights for Function App
+- User-Assigned Managed Identity for Container Instance resource
+- Event Grid Topic
+- Blob Storage
+
 ## Container: Build, publish and pull
+
+It is cheaper to use github contianer registry.
 
 ## Role based access control
 
