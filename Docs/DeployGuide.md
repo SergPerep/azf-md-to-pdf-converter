@@ -8,8 +8,6 @@
 - Operating system: Windows
 - Runtime: .NET 8 (LTS), isolated worker model
 - Storage account:
-    - How to find out what hosting plan the Function App currently has?
-    - When Azure Files are required?
     - Diagnostic settings for the storage
     - Shoul storage account be separate from other blob storage? 
 - Networking: public access
