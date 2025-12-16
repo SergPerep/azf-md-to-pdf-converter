@@ -7,14 +7,12 @@
 - Hosting plan: Consumption
 - Operating system: Windows
 - Runtime: .NET 8 (LTS), isolated worker model
-- Storage account:
-    - Diagnostic settings for the storage
-    - Shoul storage account be separate from other blob storage? 
-- Networking: public access
-- Monitoring: Connect Application Isights
-- Deployment: Github Account
-- Azure files: Disable it, we don't need them.
-
+- Storage account: create dedicated Storage account
+- Azure files: Disable. We don't need them.
+- Diagnostic settings for the storage: Configure later
+- Networking: Public access
+- Monitoring: Create dedicated Application Isights resource
+- Deployment: Github Account (after resource creation)
 
 ### Managed Identity for Container Instance
 
