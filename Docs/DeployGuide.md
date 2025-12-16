@@ -12,7 +12,8 @@
 - Diagnostic settings for the storage: Configure later
 - Networking: Public access
 - Monitoring: Create dedicated Application Isights resource
-- Deployment: Github Account (after resource creation)
+
+After the creation of the resourse. Configure deployment: Github Account
 
 ### Managed Identity for Container Instance
 
