@@ -15,17 +15,32 @@
 
 After the creation of the resourse. Configure deployment: Github Account
 
+Enable System-Assigned Managed Identity for the Azure Function App
+
+### Event Grid Topic
+
+- Event Grid -> Custom Event -> Topic
+- Networking: Public Access
+- Event Schema: Event Grid Schema
+- Data residency type: Regional
+
+Create subscription:
+- Event Schema: Event Grid Schema
+- Endpoint Type: Azure Function
+- Endpoint: Azure Function Event Handler name - "ContainerEventHandler"
+
 ### Managed Identity for Container Instance
+
+Create User Assigned Managed Identity
 
 ### Blob Storage
 
-### EventGrid Topic
-
-- Log Analytics Workspace
-- Applicatio Insights for Function App
-- User-Assigned Managed Identity for Container Instance resource
-- Event Grid Topic
-- Blob Storage
+- Redundancy: LRS
+- Public network access: Enable
+- Public network access scope: Enable from all networks
+- Data Protection: Disable everything
+- Add container: "temp-files"
+- Upload the "Input" folder. In this project. Or your own project.
 
 ## Container: Build, publish and pull
 
