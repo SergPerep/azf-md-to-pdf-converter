@@ -66,3 +66,14 @@ Configure RBAC for managed identities and mind the scopes.
 
 - SAMI - Sytem-Assigned Managed Identity for Function App
 - UAMI - User-Assigned Managed Idenity resource for Container Instance (ACI). Azure Function will be creating ACI resource and connection this Managed Identity to it.
+
+
+## Set Envs for Azure Fucntion App
+
+| Environment variable | Where to find |
+|--|--|
+| `BLOB_STORAGE_URL` | Storage Account |
+| `BLOB_STORAGE_CONTAINER_NAME` | Storage Account Container |
+| `CONTAINER_IMAGE` | GitHub registiry (Package) |
+| `TOPIC_ENDPOINT` | Event Grid |
+| `CONTAINER_UAMI_RESOURCE_ID` | User-Assigned Managed Identity |
