@@ -1,8 +1,10 @@
 # Deploy guide
 
-## Create / Deploy resources
+## Create & deploy resources
 
-### Function App
+### 1. Function App
+
+Create resource:
 
 - Hosting plan: Consumption
 - Operating system: Windows
@@ -13,43 +15,46 @@
 - Networking: Public access
 - Monitoring: Create dedicated Application Isights resource
 
-After the creation of the resourse. Configure deployment: Github Account
+Afterwards:
 
-Enable System-Assigned Managed Identity for the Azure Function App
+- Configure deployment: Github Account
+- Enable System-Assigned Managed Identity for the Azure Function App
 
-### Event Grid Topic
+### 2. Event Grid Topic
 
-- Event Grid -> Custom Event -> Topic
+Create resource:
+
+- On portal go to Event Grid -> Custom Event -> Topic.
 - Networking: Public Access
 - Event Schema: Event Grid Schema
 - Data residency type: Regional
 
-Create subscription:
-- Event Schema: Event Grid Schema
+Create a subscription:
+
+- Event Schema: Event Grid Schemas
 - Endpoint Type: Azure Function
 - Endpoint: Azure Function Event Handler name - "ContainerEventHandler"
 
-### Managed Identity for Container Instance
+### 3. Managed Identity for Container Instance
 
-Create User Assigned Managed Identity
+Create User Assigned Managed Identity.
 
-### Blob Storage
+### 4. Blob Storage
 
 - Redundancy: LRS
 - Public network access: Enable
 - Public network access scope: Enable from all networks
 - Data Protection: Disable everything
 - Add container: "temp-files"
-- Upload the "Input" folder. In this project. Or your own project.
+- Upload the "Input" folder (in this repository) or use your own project
 
-## Container: Build, publish and pull
+### 5. GitHub Container Registry
 
-It is cheaper to use github contianer registry.
+Using [Github Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) is way cheaper than Azure Container Registry resource. So do that.
 
-## Role based access control
+## Set Role Based Access Control
 
-1. Activate Sytem-Assigned Managed Identity (SAMI) for Function App
-2. Create a User-Assigned Managed Idenity (UAMI) resource for Container Instance (ACI). Azure Function will be creating ACI resource and connection this Managed Identity to it.
+Configure RBAC for managed identities and mind the scopes.
 
 | Resource | Role | Scope |
 |--|--|--|
@@ -58,3 +63,6 @@ It is cheaper to use github contianer registry.
 | Function App (SAMI) | Storage Blob Data Contributor | Blob Storage |
 | Container Instance (UAMI) | EventGrid Data Contributor | EventGrid |
 | Container Instance (UAMI) | Storage Blob Data Contributor | Blob Storage | 
+
+- SAMI - Sytem-Assigned Managed Identity for Function App
+- UAMI - User-Assigned Managed Idenity resource for Container Instance (ACI). Azure Function will be creating ACI resource and connection this Managed Identity to it.
