@@ -8,6 +8,7 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 builder.Services.AddSingleton<IStorageService, StorageService>();
+builder.Services.AddSingleton<IContainerService, ContainerService>();
 
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()

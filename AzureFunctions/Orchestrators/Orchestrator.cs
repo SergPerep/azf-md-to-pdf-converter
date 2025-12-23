@@ -44,10 +44,11 @@ public static class Orchestrator
 
         var convertorRequest = new ConverterRequest
         {
+            RunId = runId,
             InputFolderPath = Path.GetDirectoryName(combineMdsResponse.MdFilePath),
             OutputFileName = outputFileName,
             OutputFolderPath = outputFolderPath,
-            ContainerInstanceId = context.InstanceId
+            OrchInstanceId = context.InstanceId
         };
 
         await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
