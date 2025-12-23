@@ -17,7 +17,6 @@ public class CombineMds(IStorageService storageService)
         await storageService.DeleteBlobIfExistsAsync(request.DestFilePath);
         var finalContent = await storageService.ReadMdAsTextAsync(request.Mds[0].Path);
         var builder = new StringBuilder(finalContent);
-        // TODO: Maybe don't hold everything in the memory
 
         foreach (var md in request.Mds.TakeLast(request.Mds.Count - 1))
         {

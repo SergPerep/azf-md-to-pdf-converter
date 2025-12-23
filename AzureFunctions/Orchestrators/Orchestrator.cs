@@ -18,25 +18,42 @@ public static class Orchestrator
     {
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
 
-        // Replace name and input with values relevant for your Durable Functions Activity
-        var scanFilesResponse = await context.CallActivityAsync<ScanFilesResponse>(nameof(ScanFiles), new ScanFilesRequest { FolderPath = "input" });
-        var mapImagePathsResponse = await context.CallActivityAsync<MapImagePathsResponse>(nameof(MapImagePaths), new MapImagePathsRequest { Mds = scanFilesResponse.Mds, ImagePaths = scanFilesResponse.ImageFilePaths });
+        var scanFilesResponse = await context.CallActivityAsync<ScanFilesResponse>(
+            nameof(ScanFiles), 
+            new ScanFilesRequest { FolderPath = "input" });
 
-        var moveImagesResponse = await context.CallActivityAsync<MoveImagesResponse>(nameof(MoveImages), new MoveImagesRequest { DestFolderPath = "_temp/img", Mds = mapImagePathsResponse.Mds });
+        var runId = context.NewGuid();
 
-        var combineMdsResponse = await context.CallActivityAsync<CombineMdsResponse>(nameof(CombineMds), new CombineMdsRequest { DestFilePath = "_temp/index.md", Mds = moveImagesResponse.Mds });
+        logger.LogTrace($"Generated runId: {runId}");
+
+        var tempFolderPath = $"_temp-{runId}";
+        var outputFolderPath = $"output-{runId}";
+        var outputFileName = "readme.pdf";
+
+        var mapImagePathsResponse = await context.CallActivityAsync<MapImagePathsResponse>(
+            nameof(MapImagePaths), 
+            new MapImagePathsRequest { Mds = scanFilesResponse.Mds, ImagePaths = scanFilesResponse.ImageFilePaths });
+
+        var moveImagesResponse = await context.CallActivityAsync<MoveImagesResponse>(
+            nameof(MoveImages), 
+            new MoveImagesRequest { DestFolderPath = Path.Combine(tempFolderPath, "img"), Mds = mapImagePathsResponse.Mds });
+
+        var combineMdsResponse = await context.CallActivityAsync<CombineMdsResponse>(
+            nameof(CombineMds), 
+            new CombineMdsRequest { DestFilePath = Path.Combine(tempFolderPath, "index.md"), Mds = moveImagesResponse.Mds });
 
         var convertorRequest = new ConverterRequest
         {
             InputFolderPath = Path.GetDirectoryName(combineMdsResponse.MdFilePath),
-            OutputFileName = "readme.pdf",
-            OutputFolderPath = "output",
+            OutputFileName = outputFileName,
+            OutputFolderPath = outputFolderPath,
             ContainerInstanceId = context.InstanceId
         };
 
         await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
 
         logger.LogInformation("Waiting for event...");
+
         var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
             context: context,
             timeOutIn: TimeSpan.FromMinutes(15),
@@ -50,10 +67,11 @@ public static class Orchestrator
 
         if (converterEventData?.Status != ConverterEventDataStatus.Completed)
         {
-            throw new InvalidOperationException("The converter container failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
+            throw new InvalidOperationException("The converter container has failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
         }
 
         logger.LogInformation("PDF has been created!");
+
         return "PDF has been created!";
     }
 
