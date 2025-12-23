@@ -4,16 +4,15 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Md2PDFConverter.Activities;
 
-public class CleanUp(IStorageService storageService)
+public class CleanUp(IStorageService storageService, IContainerService containerService)
 {
     [Function(nameof(CleanUp))]
-    public async Task<CleanUpResponse> Run([ActivityTrigger] CleanUpRequest request, FunctionContext context)
+    public async Task Run([ActivityTrigger] CleanUpRequest request, FunctionContext context)
     {
         // Delete temporary folder
         await storageService.DeleteFolderAsync(request.TempFolderPath);
 
         // Delete container instance
-
-        return new CleanUpResponse(){};
+        await containerService.DeleteContainerAsync(request.ContainerGroupName);
     }
 }

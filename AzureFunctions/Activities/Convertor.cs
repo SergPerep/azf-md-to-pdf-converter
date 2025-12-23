@@ -27,7 +27,8 @@ public class Convertor(IContainerService containerService)
             logger.LogInformation($"Container started: {result.Id}");
             return new ConverterResponse
             {
-                ContainerInstanceId = result.Id.ToString()
+                ContainerInstanceId = result.Id.ToString(),
+                ContainerGroupName = containerGroupName
             };
 
         }

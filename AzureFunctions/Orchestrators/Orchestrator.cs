@@ -19,7 +19,7 @@ public static class Orchestrator
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
 
         var scanFilesResponse = await context.CallActivityAsync<ScanFilesResponse>(
-            nameof(ScanFiles), 
+            nameof(ScanFiles),
             new ScanFilesRequest { FolderPath = "input" });
 
         var runId = context.NewGuid();
@@ -31,15 +31,15 @@ public static class Orchestrator
         var outputFileName = "readme.pdf";
 
         var mapImagePathsResponse = await context.CallActivityAsync<MapImagePathsResponse>(
-            nameof(MapImagePaths), 
+            nameof(MapImagePaths),
             new MapImagePathsRequest { Mds = scanFilesResponse.Mds, ImagePaths = scanFilesResponse.ImageFilePaths });
 
         var moveImagesResponse = await context.CallActivityAsync<MoveImagesResponse>(
-            nameof(MoveImages), 
+            nameof(MoveImages),
             new MoveImagesRequest { DestFolderPath = Path.Combine(tempFolderPath, "img"), Mds = mapImagePathsResponse.Mds });
 
         var combineMdsResponse = await context.CallActivityAsync<CombineMdsResponse>(
-            nameof(CombineMds), 
+            nameof(CombineMds),
             new CombineMdsRequest { DestFilePath = Path.Combine(tempFolderPath, "index.md"), Mds = moveImagesResponse.Mds });
 
         var convertorRequest = new ConverterRequest
@@ -51,7 +51,7 @@ public static class Orchestrator
             OrchInstanceId = context.InstanceId
         };
 
-        await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
+        var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
 
         await context.CallActivityAsync(nameof(OrchLogger), "Waiting for event...");
 
@@ -72,6 +72,12 @@ public static class Orchestrator
         }
 
         await context.CallActivityAsync<string>(nameof(OrchLogger), "PDF has been created!");
+
+        // Clean up if run is successful
+        await context.CallActivityAsync<CleanUpRequest>(
+            nameof(CleanUp),
+            new CleanUpRequest { ContainerGroupName = converterResponse?.ContainerGroupName ?? "", TempFolderPath = tempFolderPath }
+        );
 
         return "PDF has been created!";
     }
