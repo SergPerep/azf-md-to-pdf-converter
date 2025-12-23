@@ -7,7 +7,7 @@ namespace Md2PDFConverter.Activities;
 public class MoveImages (IStorageService storageService)
 {
     [Function(nameof(MoveImages))]
-    public async Task<MoveImagesResponse> Run([ActivityTrigger] MoveImagesRequest request, FunctionContext context)
+    public async Task<MoveImagesResponse> Run([ActivityTrigger] MoveImagesRequest request)
     {
         await storageService.DeleteFolderAsync(request.DestFolderPath);
 

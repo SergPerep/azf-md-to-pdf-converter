@@ -24,7 +24,7 @@ public static class Orchestrator
 
         var runId = context.NewGuid();
 
-        logger.LogTrace($"Generated runId: {runId}");
+        await context.CallActivityAsync<string>(nameof(OrchLogger), $"Generated runId: {runId}");
 
         var tempFolderPath = $"_temp-{runId}";
         var outputFolderPath = $"output-{runId}";
@@ -52,7 +52,7 @@ public static class Orchestrator
 
         await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
 
-        logger.LogInformation("Waiting for event...");
+        await context.CallActivityAsync(nameof(OrchLogger), "Waiting for event...");
 
         var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
             context: context,
@@ -70,7 +70,7 @@ public static class Orchestrator
             throw new InvalidOperationException("The converter container has failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
         }
 
-        logger.LogInformation("PDF has been created!");
+        await context.CallActivityAsync<string>(nameof(OrchLogger), "PDF has been created!");
 
         return "PDF has been created!";
     }

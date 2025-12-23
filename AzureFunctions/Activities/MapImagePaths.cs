@@ -10,7 +10,7 @@ public class MapImagePaths(IStorageService storageService)
     private readonly Regex imageLineRegex = new Regex(@"!\[[^\]]*\]\(((?>[^()]+|\((?<open>)|\)(?<-open>))*(?(open)(?!)))\)", RegexOptions.Compiled);
     
     [Function(nameof(MapImagePaths))]
-    public async Task<MapImagePathsResponse> Run([ActivityTrigger] MapImagePathsRequest request, FunctionContext context)
+    public async Task<MapImagePathsResponse> Run([ActivityTrigger] MapImagePathsRequest request)
     {
         List<string> validationErrors = [];
         foreach (var md in request.Mds)
