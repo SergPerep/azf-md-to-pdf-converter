@@ -42,7 +42,7 @@ public static class Orchestrator
             nameof(CombineMds),
             new CombineMdsRequest { DestFilePath = Path.Combine(tempFolderPath, "index.md"), Mds = moveImagesResponse.Mds });
 
-        var convertorRequest = new ConverterRequest
+        var converterRequest = new ConverterRequest
         {
             RunId = runId,
             InputFolderPath = Path.GetDirectoryName(combineMdsResponse.MdFilePath),
@@ -51,7 +51,7 @@ public static class Orchestrator
             OrchInstanceId = context.InstanceId
         };
 
-        var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), convertorRequest);
+        var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), converterRequest);
 
         await context.CallActivityAsync(nameof(OrchLogger), "Waiting for event...");
 
@@ -71,7 +71,14 @@ public static class Orchestrator
             throw new InvalidOperationException("The converter container has failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
         }
 
-        await context.CallActivityAsync<string>(nameof(OrchLogger), "PDF has been created!");
+        var downloadLink = await context.CallActivityAsync<string>(
+            nameof(GenerateDownloadLink),
+            Path.Combine(outputFolderPath, outputFileName)
+        );
+
+        var responseMessage = $"PDF has been created: {downloadLink}";
+
+        await context.CallActivityAsync<string>(nameof(OrchLogger), responseMessage);
 
         // Clean up if run is successful
         await context.CallActivityAsync<CleanUpRequest>(
@@ -79,7 +86,7 @@ public static class Orchestrator
             new CleanUpRequest { ContainerGroupName = converterResponse?.ContainerGroupName ?? "", TempFolderPath = tempFolderPath }
         );
 
-        return "PDF has been created!";
+        return responseMessage;
     }
 
     [Function("Orchestrator_HttpStart")]

@@ -51,7 +51,7 @@ public class CombineMds(IStorageService storageService)
             builder.Append(Environment.NewLine + Environment.NewLine + content);
         }
 
-        await storageService.UploadBlobFromText(request.DestFilePath, builder.ToString());
+        await storageService.UploadBlobFromTextAsync(request.DestFilePath, builder.ToString());
 
         return new CombineMdsResponse
         {

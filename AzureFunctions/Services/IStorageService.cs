@@ -7,6 +7,7 @@ public interface IStorageService
     Task DeleteFolderAsync(string folderPath);
     Task<Stream> DownloadStreamAsync(string blobPath);
     Task UploadStreamAsync(string blobPath, Stream fileStream);
-    Task UploadBlobFromText(string blobPath, string content);
+    Task UploadBlobFromTextAsync(string blobPath, string content);
     Task DeleteBlobIfExistsAsync(string blobPath);
+    string GenerateDownloadBlobLink(string blobName);
 }

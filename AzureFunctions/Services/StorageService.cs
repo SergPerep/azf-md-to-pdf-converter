@@ -2,22 +2,26 @@ using System.Reflection.Metadata;
 using System.Text;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 
 namespace Md2PDFConverter.Services;
 
 public class StorageService : IStorageService
 {
+    private BlobServiceClient _blobServiceClient;
     private BlobContainerClient _blobContainerClient;
+    private UserDelegationKey _userDelegationKey;
     public StorageService()
     {
 
         var blobStorageUrl = Environment.GetEnvironmentVariable("BLOB_STORAGE_URL");
         var blobStorageContainerName = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONTAINER_NAME");
-        var storageClient = new BlobServiceClient(
+        _blobServiceClient = new BlobServiceClient(
             new Uri(blobStorageUrl),
             new DefaultAzureCredential()
         );
-        _blobContainerClient = storageClient.GetBlobContainerClient(blobStorageContainerName);
+        _blobContainerClient = _blobServiceClient.GetBlobContainerClient(blobStorageContainerName);
     }
 
     public async Task<List<string>> ListAllFilesAsync(string folderPath)
@@ -64,7 +68,7 @@ public class StorageService : IStorageService
         await _blobContainerClient.UploadBlobAsync(blobPath, fileStream);
     }
 
-    public async Task UploadBlobFromText(string blobPath, string content)
+    public async Task UploadBlobFromTextAsync(string blobPath, string content)
     {
         byte[] byteArray = Encoding.UTF8.GetBytes(content);
         var stream = new MemoryStream(byteArray);
@@ -75,5 +79,31 @@ public class StorageService : IStorageService
     {
         var blobClient = _blobContainerClient.GetBlobClient(blobPath);
         await blobClient.DeleteIfExistsAsync();
+    }
+
+    public string GenerateDownloadBlobLink(string blobName)
+    {
+
+        var blobClient = _blobContainerClient.GetBlobClient(blobName);
+
+        if (!blobClient.Exists())
+        {
+            throw new InvalidOperationException($"Cannot find blob: {blobName}");
+        }
+
+        if (_userDelegationKey == null || _userDelegationKey.SignedExpiresOn <= DateTime.UtcNow.AddMinutes(-1))
+        {
+            _userDelegationKey = _blobServiceClient.GetUserDelegationKey(
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddHours(1)
+            );
+        }
+
+        var sasUri = blobClient.GenerateUserDelegationSasUri(
+            BlobSasPermissions.Read,
+            DateTimeOffset.UtcNow.AddMinutes(15),
+            _userDelegationKey);
+        
+        return sasUri.ToString();
     }
 }
