@@ -1,10 +1,13 @@
+using System.Text.Json;
 using Azure;
 using Md2PDFConverter.Activities;
+using Md2PDFConverter.Entities;
 using Md2PDFConverter.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
+using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
 using Shared.Models;
 
@@ -17,76 +20,94 @@ public static class Orchestrator
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
+        var entityId = new EntityInstanceId(nameof(RunCounter), "RunCounter");
 
-        var scanFilesResponse = await context.CallActivityAsync<ScanFilesResponse>(
-            nameof(ScanFiles),
-            new ScanFilesRequest { FolderPath = "input" });
-
-        var runId = context.NewGuid();
-
-        await context.CallActivityAsync<string>(nameof(OrchLogger), $"Generated runId: {runId}");
-
-        var tempFolderPath = $"_temp-{runId}";
-        var outputFolderPath = $"output-{runId}";
-        var outputFileName = "readme.pdf";
-
-        var mapImagePathsResponse = await context.CallActivityAsync<MapImagePathsResponse>(
-            nameof(MapImagePaths),
-            new MapImagePathsRequest { Mds = scanFilesResponse.Mds, ImagePaths = scanFilesResponse.ImageFilePaths });
-
-        var moveImagesResponse = await context.CallActivityAsync<MoveImagesResponse>(
-            nameof(MoveImages),
-            new MoveImagesRequest { DestFolderPath = Path.Combine(tempFolderPath, "img"), Mds = mapImagePathsResponse.Mds });
-
-        var combineMdsResponse = await context.CallActivityAsync<CombineMdsResponse>(
-            nameof(CombineMds),
-            new CombineMdsRequest { DestFilePath = Path.Combine(tempFolderPath, "index.md"), Mds = moveImagesResponse.Mds });
-
-        var converterRequest = new ConverterRequest
+        try
         {
-            RunId = runId,
-            InputFolderPath = Path.GetDirectoryName(combineMdsResponse.MdFilePath),
-            OutputFileName = outputFileName,
-            OutputFolderPath = outputFolderPath,
-            OrchInstanceId = context.InstanceId
-        };
+            var scanFilesResponse = await context.CallActivityAsync<ScanFilesResponse>(
+                nameof(ScanFiles),
+                new ScanFilesRequest { FolderPath = "input" });
 
-        var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), converterRequest);
+            var runId = context.NewGuid();
 
-        await context.CallActivityAsync(nameof(OrchLogger), "Waiting for event...");
+            await context.CallActivityAsync<string>(nameof(OrchLogger), $"Generated runId: {runId}");
 
-        var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
-            context: context,
-            timeOutIn: TimeSpan.FromMinutes(15),
-            eventName: "ConverterResult"
-        );
+            var tempFolderPath = $"_temp-{runId}";
+            var outputFolderPath = $"output-{runId}";
+            var outputFileName = "readme.pdf";
 
-        if (IsTimedOut)
-        {
-            throw new TimeoutException("The waiting for container event has timed out");
+            var mapImagePathsResponse = await context.CallActivityAsync<MapImagePathsResponse>(
+                nameof(MapImagePaths),
+                new MapImagePathsRequest { Mds = scanFilesResponse.Mds, ImagePaths = scanFilesResponse.ImageFilePaths });
+
+            var moveImagesResponse = await context.CallActivityAsync<MoveImagesResponse>(
+                nameof(MoveImages),
+                new MoveImagesRequest { DestFolderPath = Path.Combine(tempFolderPath, "img"), Mds = mapImagePathsResponse.Mds });
+
+            var combineMdsResponse = await context.CallActivityAsync<CombineMdsResponse>(
+                nameof(CombineMds),
+                new CombineMdsRequest { DestFilePath = Path.Combine(tempFolderPath, "index.md"), Mds = moveImagesResponse.Mds });
+
+            var converterRequest = new ConverterRequest
+            {
+                RunId = runId,
+                InputFolderPath = Path.GetDirectoryName(combineMdsResponse.MdFilePath),
+                OutputFileName = outputFileName,
+                OutputFolderPath = outputFolderPath,
+                OrchInstanceId = context.InstanceId
+            };
+
+            var converterResponse = await context.CallActivityAsync<ConverterResponse>(nameof(Convertor), converterRequest);
+
+            await context.CallActivityAsync(nameof(OrchLogger), "Waiting for event...");
+
+            var (IsTimedOut, converterEventData) = await WaitForEventWithTimeOut<ConverterEventData>(
+                context: context,
+                timeOutIn: TimeSpan.FromMinutes(15),
+                eventName: "ConverterResult"
+            );
+
+            if (IsTimedOut)
+            {
+                throw new TimeoutException("The waiting for container event has timed out");
+            }
+
+            if (converterEventData?.Status != ConverterEventDataStatus.Completed)
+            {
+                throw new InvalidOperationException("The converter container has failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
+            }
+
+            var downloadLink = await context.CallActivityAsync<string>(
+                nameof(GenerateDownloadLink),
+                Path.Combine(outputFolderPath, outputFileName)
+            );
+
+            var responseMessage = $"PDF has been created: {downloadLink}";
+
+            await context.CallActivityAsync<string>(nameof(OrchLogger), responseMessage);
+
+            // Clean up if run is successful
+            await context.CallActivityAsync<CleanUpRequest>(
+                nameof(CleanUp),
+                new CleanUpRequest { ContainerGroupName = converterResponse?.ContainerGroupName ?? "", TempFolderPath = tempFolderPath }
+            );
+
+            await context.Entities.SignalEntityAsync(entityId, nameof(RunCountOperationName.IncCompleted));
+
+            return responseMessage;
         }
-
-        if (converterEventData?.Status != ConverterEventDataStatus.Completed)
+        catch (Exception)
         {
-            throw new InvalidOperationException("The converter container has failed to generate PDF. Details: " + converterEventData?.ErrorMessage);
+            await context.Entities.SignalEntityAsync(entityId, nameof(RunCountOperationName.IncFailed));
+            throw;
         }
-
-        var downloadLink = await context.CallActivityAsync<string>(
-            nameof(GenerateDownloadLink),
-            Path.Combine(outputFolderPath, outputFileName)
-        );
-
-        var responseMessage = $"PDF has been created: {downloadLink}";
-
-        await context.CallActivityAsync<string>(nameof(OrchLogger), responseMessage);
-
-        // Clean up if run is successful
-        await context.CallActivityAsync<CleanUpRequest>(
-            nameof(CleanUp),
-            new CleanUpRequest { ContainerGroupName = converterResponse?.ContainerGroupName ?? "", TempFolderPath = tempFolderPath }
-        );
-
-        return responseMessage;
+        finally
+        {
+            var runCounter = await context.Entities.CallEntityAsync<RunCountState>(entityId, nameof(RunCountOperationName.Get));
+            await context.CallActivityAsync(
+                nameof(OrchLogger),
+                JsonSerializer.Serialize(runCounter));
+        }
     }
 
     [Function("Orchestrator_HttpStart")]
@@ -100,6 +121,8 @@ public static class Orchestrator
         // Function input comes from the request content.
         string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
             nameof(Orchestrator));
+
+
 
         logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
